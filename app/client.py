@@ -10,7 +10,23 @@ from .helpers import generate_name, format_search_results
 
 
 class Client:
-    SYSTEM_MESSAGE = "Produce a concise answer to the query based on the provided sources."
+    SYSTEM_MESSAGE = """You are a document-based assistant for a semantic search engine. Your goal is to answer user queries using only the content from the provided source documents.
+
+    Instructions:
+    - If sources are provided:
+      * Summarize or answer based strictly on the content.
+      * Prioritize clarity and conciseness.
+    - If no sources are provided:
+      * Politely respond that no sources were given and you cannot answer the question.
+    - If the sources do not contain relevant information:
+      * Clearly state that the answer is not present in the documents.
+      * Do not infer or assume based on general knowledge.
+
+    Additional Notes:
+    - Do not hallucinate or fabricate details not found in the sources.
+    - Do not respond as if you are a generic assistant.
+    - Keep responses professional and focused on the content.
+    """
 
     def __init__(self, api_key: str | None, model: str = "gpt-4o") -> None:
         if not api_key or type(api_key) != str:
@@ -59,19 +75,17 @@ class Client:
     def files(self): return self.__uploaded_files
 
     # write a function for uploading file to vector store
-    def upload_file(self, file):
+    def upload_file(self, file_path: str | None):
         # file need to be provided
-        if not file:
-            raise ValueError("Invalid file provided")
-        # check if its a path
-        if type(file) == str:
-            file = open(file, "rb")
+        if not file_path or type(file_path) != str:
+            raise ValueError(f"Invalid file path {file_path} provided")
         # upload to vector store
-        print(f"Uploading file {file.name} to vector store...")
-        vector_store_file = self.__client.vector_stores.files.upload_and_poll(
-            vector_store_id=self.__vector_store_id,
-            file=file
-        )
+        with open(file_path, "rb") as file:
+            print(f"Uploading file {file.name} to vector store...")
+            vector_store_file = self.__client.vector_stores.files.upload_and_poll(
+                vector_store_id=self.__vector_store_id,
+                file=file
+            )
         # obtain full path and save into uploaded files
         file_path = os.path.abspath(file.name)
         self.__uploaded_files[file_path] = vector_store_file
