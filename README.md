@@ -11,6 +11,7 @@ A desktop application that allows users to search through documents semantically
 - Simple chat-like interface for queries and responses
 
 
+
 ## Requirements
 
 - Python 3.8+
