@@ -18,6 +18,7 @@ A desktop application that allows users to search through documents semantically
 
 ## Installation
 
+
 1. Clone the repository:
    ```
    https://github.com/nebulaw/semantic-search-engine.git
